@@ -1,0 +1,25 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+
+Person(user, "Пользователь", "Пользователь системы")
+
+System_Boundary(c1, "Система управления контентом") {
+    Container(spa, "Single Page Application", "React", "Веб-интерфейс пользователя")
+    Container(api, "API Application", "ASP.NET Core 8", "Основное приложение")
+    ContainerDb(db, "Database", "PostgreSQL", "Хранение данных")
+    Container(queue, "Message Queue", "RabbitMQ", "Очередь сообщений")
+    Container(scheduler, "Scheduler", "Hangfire", "Планировщик задач")
+    Container(vault, "Secrets Storage", "Hashicorp Vault", "Хранение секретов")
+}
+
+System_Ext(telegram_api, "Telegram API", "Внешний API Telegram")
+
+Rel(user, spa, "Использует", "HTTPS")
+Rel(spa, api, "Вызывает API", "JSON/HTTPS")
+Rel(api, db, "Читает/Пишет", "SQL")
+Rel(api, queue, "Публикует события")
+Rel(api, vault, "Получает секреты")
+Rel(scheduler, queue, "Подписывается на события")
+Rel(scheduler, telegram_api, "Отправляет посты", "HTTPS")
+@enduml
