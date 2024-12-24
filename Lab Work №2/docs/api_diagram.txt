@@ -20,12 +20,11 @@ Container_Boundary(api, "API Приложение") {
 }
 
 System_Ext(telegram_api, "Telegram API", "API для публикации контента")
-System_Ext(telegram_oauth, "Telegram OAuth", "Сервис авторизации Telegram")
 
 Rel(auth_controller, auth_service, "Использует")
 Rel(auth_service, telegram_auth_client, "Выполняет OAuth авторизацию")
 Rel(auth_service, jwt_service, "Создает и проверяет токены")
-Rel(telegram_auth_client, telegram_oauth, "Авторизует", "HTTPS")
+Rel(telegram_auth_client, telegram_api, "Авторизует", "HTTPS")
 
 Rel(schedule_controller, schedule_service, "Использует")
 Rel(content_controller, content_service, "Использует")
@@ -38,7 +37,6 @@ Rel(approval_service, telegram_client, "Использует для отправ
 
 Rel(telegram_client, telegram_api, "Отправляет запросы для публикации", "HTTPS")
 
-' Добавление связи с Базой Данных
 System_Boundary(c1, "Система управления контентом") {
     ContainerDb(db, "База данных", "PostgreSQL", "Хранение данных о контенте и пользователях")
 }
