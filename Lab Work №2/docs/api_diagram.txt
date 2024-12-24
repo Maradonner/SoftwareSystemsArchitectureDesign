@@ -1,0 +1,47 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(api, "API Приложение") {
+    Component(auth_controller, "AuthController", "REST API", "Обработка OAuth авторизации через Telegram")
+    Component(schedule_controller, "ScheduleController", "REST API", "Управление расписанием публикаций")
+    Component(content_controller, "ContentController", "REST API", "Управление контентом")
+    Component(user_controller, "UserController", "REST API", "Управление пользователями")
+    Component(approval_controller, "ApprovalController", "REST API", "Управление процессом утверждения")
+    
+    Component(auth_service, "AuthService", "Сервис ASP.NET Core", "Логика OAuth аутентификации")
+    Component(jwt_service, "JWTService", "Сервис ASP.NET Core", "Управление JWT токенами")
+    Component(schedule_service, "ScheduleService", "Сервис ASP.NET Core", "Бизнес-логика расписания")
+    Component(content_service, "ContentService", "Сервис ASP.NET Core", "Бизнес-логика управления контентом")
+    Component(user_service, "UserService", "Сервис ASP.NET Core", "Бизнес-логика управления пользователями")
+    Component(approval_service, "ApprovalService", "Сервис ASP.NET Core", "Бизнес-логика процесса утверждения")
+    
+    Component(telegram_client, "TelegramClient", "HTTP Client", "Взаимодействие с Telegram API")
+    Component(telegram_auth_client, "TelegramAuthClient", "OAuth Client", "Обработка OAuth авторизации")
+}
+
+System_Ext(telegram_api, "Telegram API", "API для публикации контента")
+
+Rel(auth_controller, auth_service, "Использует")
+Rel(auth_service, telegram_auth_client, "Выполняет OAuth авторизацию")
+Rel(auth_service, jwt_service, "Создает и проверяет токены")
+Rel(telegram_auth_client, telegram_api, "Авторизует", "HTTPS")
+
+Rel(schedule_controller, schedule_service, "Использует")
+Rel(content_controller, content_service, "Использует")
+Rel(user_controller, user_service, "Использует")
+Rel(approval_controller, approval_service, "Использует")
+
+Rel(schedule_service, telegram_client, "Использует для отправки публикаций")
+Rel(content_service, telegram_client, "Использует для управления контентом")
+Rel(approval_service, telegram_client, "Использует для отправки утвержденного контента")
+
+Rel(telegram_client, telegram_api, "Отправляет запросы для публикации", "HTTPS")
+
+System_Boundary(c1, "Система управления контентом") {
+    ContainerDb(db, "База данных", "PostgreSQL", "Хранение данных о контенте и пользователях")
+}
+
+Rel(api, db, "Читает и записывает данные", "SQL")
+
+
+@enduml
