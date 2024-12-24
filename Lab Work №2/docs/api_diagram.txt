@@ -1,19 +1,19 @@
 @startuml
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
 
-Container_Boundary(api, "API") {
+Container_Boundary(api, "API Приложение") {
     Component(auth_controller, "AuthController", "REST API", "Обработка OAuth авторизации через Telegram")
     Component(schedule_controller, "ScheduleController", "REST API", "Управление расписанием публикаций")
     Component(content_controller, "ContentController", "REST API", "Управление контентом")
     Component(user_controller, "UserController", "REST API", "Управление пользователями")
     Component(approval_controller, "ApprovalController", "REST API", "Управление процессом утверждения")
     
-    Component(auth_service, "AuthService", "Spring Service", "Логика OAuth аутентификации")
-    Component(jwt_service, "JWTService", "Spring Service", "Управление JWT токенами")
-    Component(schedule_service, "ScheduleService", "Spring Service", "Бизнес-логика расписания")
-    Component(content_service, "ContentService", "Spring Service", "Бизнес-логика управления контентом")
-    Component(user_service, "UserService", "Spring Service", "Бизнес-логика управления пользователями")
-    Component(approval_service, "ApprovalService", "Spring Service", "Бизнес-логика процесса утверждения")
+    Component(auth_service, "AuthService", "Сервис ASP.NET Core", "Логика OAuth аутентификации")
+    Component(jwt_service, "JWTService", "Сервис ASP.NET Core", "Управление JWT токенами")
+    Component(schedule_service, "ScheduleService", "Сервис ASP.NET Core", "Бизнес-логика расписания")
+    Component(content_service, "ContentService", "Сервис ASP.NET Core", "Бизнес-логика управления контентом")
+    Component(user_service, "UserService", "Сервис ASP.NET Core", "Бизнес-логика управления пользователями")
+    Component(approval_service, "ApprovalService", "Сервис ASP.NET Core", "Бизнес-логика процесса утверждения")
     
     Component(telegram_client, "TelegramClient", "HTTP Client", "Взаимодействие с Telegram API")
     Component(telegram_auth_client, "TelegramAuthClient", "OAuth Client", "Обработка OAuth авторизации")
@@ -24,7 +24,7 @@ System_Ext(telegram_oauth, "Telegram OAuth", "Сервис авторизаци�
 
 Rel(auth_controller, auth_service, "Использует")
 Rel(auth_service, telegram_auth_client, "Выполняет OAuth авторизацию")
-Rel(auth_service, jwt_service, "Создает/проверяет токены")
+Rel(auth_service, jwt_service, "Создает и проверяет токены")
 Rel(telegram_auth_client, telegram_oauth, "Авторизует", "HTTPS")
 
 Rel(schedule_controller, schedule_service, "Использует")
@@ -32,10 +32,18 @@ Rel(content_controller, content_service, "Использует")
 Rel(user_controller, user_service, "Использует")
 Rel(approval_controller, approval_service, "Использует")
 
-Rel(schedule_service, telegram_client, "Использует")
-Rel(content_service, telegram_client, "Использует")
-Rel(approval_service, telegram_client, "Использует")
+Rel(schedule_service, telegram_client, "Использует для отправки публикаций")
+Rel(content_service, telegram_client, "Использует для управления контентом")
+Rel(approval_service, telegram_client, "Использует для отправки утвержденного контента")
 
-Rel(telegram_client, telegram_api, "Отправляет запросы", "HTTPS")
+Rel(telegram_client, telegram_api, "Отправляет запросы для публикации", "HTTPS")
+
+' Добавление связи с Базой Данных
+System_Boundary(c1, "Система управления контентом") {
+    ContainerDb(db, "База данных", "PostgreSQL", "Хранение данных о контенте и пользователях")
+}
+
+Rel(api, db, "Читает и записывает данные", "SQL")
+
 
 @enduml

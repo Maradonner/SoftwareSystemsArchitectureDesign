@@ -1,0 +1,20 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+Person(user, "Пользователь", "Использует систему для управления и планирования публикаций")
+
+System_Ext(telegram_api, "Telegram API", "API для взаимодействия с Telegram")
+
+System_Boundary(tg_content_system, "Система управления контентом") {
+    System(systemSchedule, "Модуль расписания", "Позволяет составлять расписание публикаций.")
+    System(systemAuthorization, "Модуль управления доступом", "Управляет правами пользователя.")
+    System(systemApproval, "Модуль утверждения контента", "Организует процесс утверждения контента.")
+}
+
+Rel(user, systemAuthorization, "Управляет доступом через")
+Rel(user, systemSchedule, "Создает и планирует контент через")
+Rel(user, systemApproval, "Отправляет на утверждение через")
+
+Rel(systemSchedule, telegram_api, "Отправляет публикации", "HTTPS")
+Rel(systemApproval, telegram_api, "Отправляет утвержденные публикации", "HTTPS")
+@enduml

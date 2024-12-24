@@ -1,25 +1,25 @@
 @startuml
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 
-
-Person(user, "Пользователь", "Пользователь системы")
+Person(user, "Пользователь", "Использует систему для управления и планирования публикаций")
 
 System_Boundary(c1, "Система управления контентом") {
-    Container(spa, "Single Page Application", "React", "Веб-интерфейс пользователя")
-    Container(api, "API Application", "ASP.NET Core 8", "Основное приложение")
-    ContainerDb(db, "Database", "PostgreSQL", "Хранение данных")
-    Container(queue, "Message Queue", "RabbitMQ", "Очередь сообщений")
-    Container(scheduler, "Scheduler", "Hangfire", "Планировщик задач")
-    Container(vault, "Secrets Storage", "Hashicorp Vault", "Хранение секретов")
+    Container(spa, "Веб-приложение", "React", "Интерфейс пользователя для управления контентом")
+    Container(api, "API Приложение", "ASP.NET Core 8", "Обработка запросов и бизнес-логика")
+    ContainerDb(db, "База данных", "PostgreSQL", "Хранение данных о контенте и пользователях")
+    Container(queue, "Очередь сообщений", "RabbitMQ", "Обработка событий и заданий")
+    Container(scheduler, "Планировщик задач", "Hangfire", "Управление расписанием публикаций")
+    Container(vault, "Хранилище секретов", "Hashicorp Vault", "Безопасное хранение конфиденциальных данных")
 }
 
-System_Ext(telegram_api, "Telegram API", "Внешний API Telegram")
+System_Ext(telegram_api, "Telegram API", "Внешний API Telegram для публикации контента")
 
-Rel(user, spa, "Использует", "HTTPS")
-Rel(spa, api, "Вызывает API", "JSON/HTTPS")
-Rel(api, db, "Читает/Пишет", "SQL")
-Rel(api, queue, "Публикует события")
-Rel(api, vault, "Получает секреты")
-Rel(scheduler, queue, "Подписывается на события")
-Rel(scheduler, telegram_api, "Отправляет посты", "HTTPS")
+Rel(user, spa, "Использует для управления и планирования контента", "HTTPS")
+Rel(spa, api, "Вызывает API для выполнения операций", "JSON/HTTPS")
+Rel(api, db, "Читает и записывает данные", "SQL")
+Rel(api, queue, "Публикует события в очередь")
+Rel(api, vault, "Получает секреты для безопасной работы")
+Rel(scheduler, queue, "Подписывается на события из очереди")
+Rel(scheduler, telegram_api, "Отправляет утвержденные посты", "HTTPS")
+Rel(api, telegram_api, "Отправляет контент для публикации", "HTTPS")
 @enduml
